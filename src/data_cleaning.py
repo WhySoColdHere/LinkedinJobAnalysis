@@ -1,34 +1,22 @@
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
 
 
 class DataCleaner:
     def __init__(self):
         pd.set_option("display.max_columns", None)
         self.__dirty_data = pd.read_csv('../data/job_postings.csv')
+        self.vectorize = TfidfVectorizer(token_pattern=r'(?u)\b\w*[A-Za-z]\w*\b')
 
-    def get_clear_data(self):
-        self.__dirty_data = self.__dirty_data.drop([
-            "got_summary", "got_ner", "is_being_worked",
-            "search_city", "search_country", "last_status",
-            "search_position"], axis=1)
-
+    def get_clean_data(self):
         self.__dirty_data.drop_duplicates(inplace=True)
 
-        self.__dirty_data['first_seen'] = pd.to_datetime(self.__dirty_data['first_seen'], utc=True)
-        self.__dirty_data['last_processed_time'] = pd.to_datetime(self.__dirty_data['last_processed_time'],
-                                                                  utc=True).dt.floor('s')
-        self.__dirty_data['time_until_processing'] = (
-                    self.__dirty_data['last_processed_time'] - self.__dirty_data['first_seen']).dt.days
+        y = self.__dirty_data['job_level']
+        x = self.__dirty_data['job_title']
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
 
-        self.__dirty_data = pd.get_dummies(self.__dirty_data, columns=['job_level'], prefix='level')
-        self.__dirty_data = pd.get_dummies(self.__dirty_data, columns=['job_type'], prefix='type', drop_first=True)
+        x_train = self.vectorize.fit_transform(x_train)
+        x_test = self.vectorize.transform(x_test)
 
-        self.__dirty_data[['city', 'state', 'country']] = self.__dirty_data['job_location'].str.replace(' ',
-                                                                                                        '').str.split(
-            ',',
-            expand=True).fillna(
-            'Unknown')
-        clear_data = self.__dirty_data.drop('job_location', axis=1)
-
-        return clear_data
-
+        return {'x_train': x_train, 'x_test': x_test, 'y_train': y_train, 'y_test': y_test}

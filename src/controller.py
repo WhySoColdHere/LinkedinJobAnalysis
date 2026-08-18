@@ -8,6 +8,7 @@ class Controller:
         print("Which model you would like to use?\n1 - Random Forest Classifier")
         try:
             self.answer = int(input())
+            self.answer = 1
 
             if self.answer > available_models_count:
                 raise UnavailableModelError(
@@ -17,13 +18,13 @@ class Controller:
 
             match self.answer:
                 case 1:
-                    print(self._RFC_model())
+                    self._RFC_model()
         except ValueError:
             print("Please enter an integer")
             Controller(available_models_count)
 
     def _RFC_model(self):
-        return Model(self.dc.get_clear_data()).predict()
+        return Model(**self.dc.get_clean_data()).predict()
 
 
 controller = Controller(1)
