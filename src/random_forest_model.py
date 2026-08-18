@@ -1,13 +1,11 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from base_model import Model
 
 
-class Model:
+class RFC(Model):
     def __init__(self, **kwargs):
-        self.x_train = kwargs['x_train']
-        self.x_test = kwargs['x_test']
-        self.y_train = kwargs['y_train']
-        self.y_test = kwargs['y_test']
+        super().__init__(**kwargs)
 
     def predict(self):
         model = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -21,4 +19,3 @@ class Model:
         print(f"Accuracy: {accuracy * 100:.2f}%")
         print(f"Confusion Matrix: \n{conf_matrix}")
         print(f"Report: {report}")
-
