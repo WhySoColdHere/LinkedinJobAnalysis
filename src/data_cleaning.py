@@ -13,7 +13,7 @@ class DataCleaner:
         self.__dirty_data.drop_duplicates(inplace=True)
 
         y = self.__dirty_data['job_level']
-        x = self.__dirty_data['job_title']
+        x = self.__dirty_data['job_title'].str.replace(r'\b(senior|lead|associate)\b', '', regex=True, case=False)
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
 
         x_train = self.vectorize.fit_transform(x_train)

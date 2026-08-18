@@ -7,7 +7,7 @@ class Controller:
     def __init__(self, available_models_count):
         print("Which model you would like to use?\n1 - Random Forest Classifier")
         try:
-            self.answer = int(input())
+            # self.answer = int(input())
             self.answer = 1
 
             if self.answer > available_models_count:
