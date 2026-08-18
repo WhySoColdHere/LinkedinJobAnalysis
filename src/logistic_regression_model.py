@@ -1,15 +1,12 @@
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from base_model import Model
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
-class RandomForestClassifierModel(Model):
+class LogisticRegressionModel(Model):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.model = RandomForestClassifier(
-            n_estimators=100,
-            random_state=42
-        )
+        self.model = LogisticRegression()
 
     def run(self):
         self.model.fit(self.x_train, self.y_train)

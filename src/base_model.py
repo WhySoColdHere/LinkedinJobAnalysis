@@ -4,8 +4,9 @@ class Model:
         self.x_test = kwargs['x_test']
         self.y_train = kwargs['y_train']
         self.y_test = kwargs['y_test']
+        self.model = None
 
-    def predict(self):
+    def run(self):
         pass
 
     def __repr__(self):
