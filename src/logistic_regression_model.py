@@ -7,6 +7,7 @@ class LogisticRegressionModel(Model):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.model = LogisticRegression()
+        self.vectorizer = kwargs['vectorizer']
 
     def run(self):
         self.model.fit(self.x_train, self.y_train)

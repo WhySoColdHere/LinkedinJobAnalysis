@@ -19,4 +19,10 @@ class DataCleaner:
         x_train = self.vectorize.fit_transform(x_train)
         x_test = self.vectorize.transform(x_test)
 
-        return {'x_train': x_train, 'x_test': x_test, 'y_train': y_train, 'y_test': y_test}
+        return {
+            'x_train': x_train,
+            'x_test': x_test,
+            'y_train': y_train,
+            'y_test': y_test,
+            'vectorizer': self.vectorize
+        }
