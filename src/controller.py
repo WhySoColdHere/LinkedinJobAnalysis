@@ -20,7 +20,7 @@ class Controller:
             available_models_count = len(Controller.models)
 
             # self.answer = int(input())
-            self.answer = 3
+            self.answer = 2
 
             if self.answer > available_models_count:
                 raise UnavailableModelError(

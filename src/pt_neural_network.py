@@ -2,6 +2,7 @@ import torch
 from base_model import Model
 from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
 class JobDataset(Dataset):
@@ -54,6 +55,8 @@ class NN(Model, nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.to(self.device)
 
+        self.report = None
+
     def forward(self, x):
         x = self.layer1(x)
         x = self.relu(x)
@@ -85,10 +88,11 @@ class NN(Model, nn.Module):
 
     def _test(self):
         print(f'{"-" * 20} Test {"-" * 20}')
-        self.eval()
 
-        correct = 0
-        total = 0
+        all_predictions = []
+        all_targets = []
+
+        self.eval()
 
         with torch.no_grad():
             for x_batch, y_batch in self.test_loader:
@@ -98,16 +102,27 @@ class NN(Model, nn.Module):
                 output = self(x_batch)
                 probability = torch.sigmoid(output)
                 prediction = (probability >= 0.5).float()
-
                 y_batch = y_batch.unsqueeze(1)
 
-                correct += (prediction == y_batch).sum().item()
-                total += y_batch.size(0)
+                all_predictions.extend(prediction.cpu().numpy().flatten())
+                all_targets.extend(y_batch.cpu().numpy().flatten())
 
-        accuracy = correct / total
-        print(f"Test accuracy: {accuracy * 100:.2f}%")
+        print(f"Test accuracy: {accuracy_score(all_targets, all_predictions) * 100:.2f}%")
+        print(f"Confusion matrix:\n{confusion_matrix(all_targets, all_predictions)}")
+
+        print("Report:")
+        report = classification_report(
+            all_targets,
+            all_predictions,
+            target_names=["Associate", "Mid Senior"],
+            output_dict=True
+        )
+
+        self.report = report
 
     def run(self):
         self._train()
         print()
         self._test()
+
+        return self.report

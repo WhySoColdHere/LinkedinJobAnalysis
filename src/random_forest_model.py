@@ -21,4 +21,5 @@ class RandomForestClassifierModel(Model):
 
         print(f"Accuracy: {accuracy * 100:.2f}%")
         print(f"Confusion Matrix: \n{conf_matrix}")
-        print(f"Report: {report}")
+
+        return report

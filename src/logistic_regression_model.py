@@ -15,8 +15,9 @@ class LogisticRegressionModel(Model):
 
         accuracy = accuracy_score(self.y_test, predictions)
         conf_matrix = confusion_matrix(self.y_test, predictions)
-        report = classification_report(self.y_test, predictions)
+        report = classification_report(self.y_test, predictions, output_dict=True)
 
         print(f"Accuracy: {accuracy * 100:.2f}%")
         print(f"Confusion Matrix: \n{conf_matrix}")
-        print(f"Report: {report}")
+
+        return report
