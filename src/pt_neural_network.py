@@ -19,7 +19,7 @@ class JobDataset(Dataset):
         return self.x[item], self.y[item]
 
     def __str__(self):
-        return f"X:\n{self.x}\n\nY:\n{self.y}"
+        return f"X shape: {self.x.shape}\nY shape: {self.y.shape}"
 
 
 class NN(Model, nn.Module):
@@ -55,8 +55,6 @@ class NN(Model, nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.to(self.device)
 
-        self.report = None
-
     def forward(self, x):
         x = self.layer1(x)
         x = self.relu(x)
@@ -66,6 +64,8 @@ class NN(Model, nn.Module):
 
     def _train(self):
         print(f'{"-" * 20} Training {"-" * 20}')
+        self.train()
+
         for epoch in range(self.epochs):
             total_loss = 0
             for x_batch, y_batch in self.train_loader:
@@ -107,22 +107,16 @@ class NN(Model, nn.Module):
                 all_predictions.extend(prediction.cpu().numpy().flatten())
                 all_targets.extend(y_batch.cpu().numpy().flatten())
 
-        print(f"Test accuracy: {accuracy_score(all_targets, all_predictions) * 100:.2f}%")
-        print(f"Confusion matrix:\n{confusion_matrix(all_targets, all_predictions)}")
-
-        print("Report:")
-        report = classification_report(
+        self.accuracy = accuracy_score(all_targets, all_predictions)
+        self.conf_matrix = confusion_matrix(all_targets, all_predictions)
+        self.report = classification_report(
             all_targets,
             all_predictions,
             target_names=["Associate", "Mid Senior"],
             output_dict=True
         )
 
-        self.report = report
-
     def run(self):
         self._train()
         print()
         self._test()
-
-        return self.report

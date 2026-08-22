@@ -15,11 +15,8 @@ class RandomForestClassifierModel(Model):
         self.model.fit(self.x_train, self.y_train)
         predictions = self.model.predict(self.x_test)
 
-        accuracy = accuracy_score(self.y_test, predictions)
-        conf_matrix = confusion_matrix(self.y_test, predictions)
-        report = classification_report(self.y_test, predictions)
+        self.accuracy = accuracy_score(self.y_test, predictions)
+        self.conf_matrix = confusion_matrix(self.y_test, predictions)
+        self.report = classification_report(self.y_test, predictions, output_dict=True)
 
-        print(f"Accuracy: {accuracy * 100:.2f}%")
-        print(f"Confusion Matrix: \n{conf_matrix}")
 
-        return report
