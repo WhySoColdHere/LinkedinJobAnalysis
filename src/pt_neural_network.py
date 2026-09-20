@@ -2,7 +2,7 @@ import torch
 from base_model import Model
 from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_auc_score, precision_recall_curve, precision_score
 
 
 class JobDataset(Dataset):
@@ -23,10 +23,11 @@ class JobDataset(Dataset):
 
 
 class NN(Model, nn.Module):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, is_compare=False, **kwargs):
+        super().__init__(is_compare, **kwargs)
         nn.Module.__init__(self)
 
+        self.is_compare = is_compare
         self.train_dataset = JobDataset(self.x_train, self.y_train)
         self.test_dataset = JobDataset(self.x_test, self.y_test)
         self.batch_size = 32
@@ -63,7 +64,9 @@ class NN(Model, nn.Module):
         return x
 
     def _train(self):
-        print(f'{"-" * 20} Training {"-" * 20}')
+        if not self.is_compare:
+            print(f'{"-" * 20} Training {"-" * 20}')
+
         self.train()
 
         for epoch in range(self.epochs):
@@ -83,12 +86,11 @@ class NN(Model, nn.Module):
 
             average_loss = total_loss / len(self.train_loader)
 
-            print(f"Epoch {epoch + 1}/{self.epochs}"
-                  f" --> Loss: {average_loss:.4f}")
+            if not self.is_compare:
+                print(f"Epoch {epoch + 1}/{self.epochs}"
+                      f" --> Loss: {average_loss:.4f}")
 
     def _test(self):
-        print(f'{"-" * 20} Test {"-" * 20}')
-
         all_predictions = []
         all_targets = []
 
@@ -109,14 +111,17 @@ class NN(Model, nn.Module):
 
         self.accuracy = accuracy_score(all_targets, all_predictions)
         self.conf_matrix = confusion_matrix(all_targets, all_predictions)
-        self.report = classification_report(
+        self._report = classification_report(
             all_targets,
             all_predictions,
-            target_names=["Associate", "Mid Senior"],
+            target_names=["Associate", "Mid senior"],
             output_dict=True
         )
-
+        print(f"ROC-AUC score:\n{roc_auc_score(all_predictions, all_targets)}\n")
+        print(f"Precision-recall curve\n{precision_recall_curve(all_predictions, all_targets)}")
     def run(self):
         self._train()
         print()
         self._test()
+
+

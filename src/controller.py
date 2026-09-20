@@ -1,16 +1,15 @@
-from random_forest_model import RandomForestClassifierModel
-from logistic_regression_model import LogisticRegressionModel
+from random_forest_model import RFC
+from logistic_regression_model import LogReg
 from pt_neural_network import NN
 from data_cleaning import DataCleaner
 from exceptions import UnavailableModelError
-from base_model import Model
-import pandas as pd
+from comparator import Comparator
 
 
 class Controller:
     models = {
-        1: RandomForestClassifierModel,
-        2: LogisticRegressionModel,
+        1: RFC,
+        2: LogReg,
         3: NN
     }
 
@@ -37,7 +36,8 @@ class Controller:
             else:
                 self.run_model()
 
-        except ValueError:
+        except ValueError as e:
+            print(e)
             print("Please enter an integer")
             Controller()
 
@@ -47,7 +47,18 @@ class Controller:
         model.pretty_results()
 
     def compare_models(self):
-        Model.compare_models(self.dc, *self.models.values())
+        cleaned_data = self.dc.get_clean_data()
+        labels = []
+        reports = []
+        for i in range(1, len(Controller.models) + 1):
+            model = Controller.models[i](is_compare=True, **cleaned_data)
+            model.run()
+            labels.append(model.__class__.__name__)
+            reports.append(model.get_report())
 
+        comparator = Comparator(labels, reports)
+        comparator.compare()
 
 controller = Controller()
+
+
